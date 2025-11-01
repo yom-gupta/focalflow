@@ -1,0 +1,129 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Project title"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "thumbnail",
+        "video",
+        "other"
+      ],
+      "description": "Project type"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client name"
+    },
+    "price": {
+      "type": "number",
+      "description": "Project price"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of items/videos"
+    },
+    "link": {
+      "type": "string",
+      "description": "Project link or reference"
+    },
+    "source_link": {
+      "type": "string",
+      "description": "Source files link sent by client"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "working",
+        "delay",
+        "complete",
+        "cancel"
+      ],
+      "default": "not_started",
+      "description": "Project status"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Preview image URL"
+    },
+    "video_steps": {
+      "type": "object",
+      "description": "Video editing progress steps",
+      "properties": {
+        "cuts": {
+          "type": "boolean",
+          "default": false
+        },
+        "color_grade": {
+          "type": "boolean",
+          "default": false
+        },
+        "sound_design": {
+          "type": "boolean",
+          "default": false
+        },
+        "motion_graphics": {
+          "type": "boolean",
+          "default": false
+        },
+        "export": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "thumbnail_steps": {
+      "type": "object",
+      "description": "Thumbnail design progress steps",
+      "properties": {
+        "concept": {
+          "type": "boolean",
+          "default": false
+        },
+        "design": {
+          "type": "boolean",
+          "default": false
+        },
+        "review": {
+          "type": "boolean",
+          "default": false
+        },
+        "final": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Project start date"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date",
+      "description": "Project deadline"
+    },
+    "delay_days": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of days delayed"
+    }
+  },
+  "required": [
+    "title",
+    "type",
+    "client_name",
+    "price"
+  ]
+}
