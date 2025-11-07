@@ -263,7 +263,15 @@ export default function Clients() {
                         size="icon"
                         onClick={() => {
                           setEditingClient(client)
-                          setFormData(client)
+                          setFormData({
+                            name: client.name,
+                            email: client.email || '',
+                            phone: client.phone || '',
+                            company: client.company || '',
+                            youtube_url: client.youtube_url || '',
+                            instagram_url: client.instagram_url || '',
+                            notes: client.notes || ''
+                          })
                           setShowForm(true)
                         }}
                         className={isDark ? 'text-[#a5a5a5] hover:text-[#ededed] hover:bg-[#2e2e2e]' : 'text-[#787774] hover:text-[#37352f] hover:bg-gray-100'}

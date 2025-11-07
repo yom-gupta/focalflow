@@ -136,7 +136,7 @@ export default function ProjectForm({ project, onSubmit, onCancel, isSubmitting,
               <Label className="text-zinc-300">Type</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value: 'thumbnail' | 'video' | 'other') => setFormData({...formData, type: value})}
+                onValueChange={(value) => setFormData({...formData, type: value as 'thumbnail' | 'video' | 'other'})}
               >
                 <SelectTrigger className="bg-[#0B0B10]/50 border-[#1E1E23] text-white focus-visible:ring-indigo-500">
                   <SelectValue />
@@ -153,7 +153,7 @@ export default function ProjectForm({ project, onSubmit, onCancel, isSubmitting,
               <Label className="text-zinc-300">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value: 'not_started' | 'working' | 'delay' | 'complete' | 'cancel') => setFormData({...formData, status: value})}
+                onValueChange={(value) => setFormData({...formData, status: value as 'not_started' | 'working' | 'delay' | 'complete' | 'cancel'})}
               >
                 <SelectTrigger className="bg-[#0B0B10]/50 border-[#1E1E23] text-white focus-visible:ring-indigo-500">
                   <SelectValue />
