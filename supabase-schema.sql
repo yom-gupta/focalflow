@@ -192,3 +192,92 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- Inspiration Folders Table
+CREATE TABLE IF NOT EXISTS inspiration_folders (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  thumbnail_url TEXT,
+  item_count INTEGER DEFAULT 0,
+  pinned BOOLEAN DEFAULT false,
+  attached_project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Inspiration Items Table
+CREATE TABLE IF NOT EXISTS inspiration_items (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  folder_id UUID NOT NULL REFERENCES inspiration_folders(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('image', 'link', 'text', 'screenshot')),
+  title TEXT,
+  url TEXT,
+  image_url TEXT,
+  note TEXT,
+  tags TEXT[] DEFAULT '{}',
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Row Level Security for Inspiration
+ALTER TABLE inspiration_folders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE inspiration_items ENABLE ROW LEVEL SECURITY;
+
+-- Inspiration Folders Policies
+CREATE POLICY "Users can view own inspiration folders" ON inspiration_folders
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own inspiration folders" ON inspiration_folders
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own inspiration folders" ON inspiration_folders
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own inspiration folders" ON inspiration_folders
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Inspiration Items Policies
+CREATE POLICY "Users can view own inspiration items" ON inspiration_items
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own inspiration items" ON inspiration_items
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own inspiration items" ON inspiration_items
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own inspiration items" ON inspiration_items
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Triggers for inspiration_folders updated_at
+CREATE TRIGGER update_inspiration_folders_updated_at BEFORE UPDATE ON inspiration_folders
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Function to update item_count when items are added/deleted
+CREATE OR REPLACE FUNCTION update_folder_item_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE inspiration_folders
+    SET item_count = item_count + 1, updated_at = NOW()
+    WHERE id = NEW.folder_id;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE inspiration_folders
+    SET item_count = GREATEST(item_count - 1, 0), updated_at = NOW()
+    WHERE id = OLD.folder_id;
+    RETURN OLD;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to update item_count
+CREATE TRIGGER update_item_count_on_insert
+  AFTER INSERT ON inspiration_items
+  FOR EACH ROW EXECUTE FUNCTION update_folder_item_count();
+
+CREATE TRIGGER update_item_count_on_delete
+  AFTER DELETE ON inspiration_items
+  FOR EACH ROW EXECUTE FUNCTION update_folder_item_count();
+

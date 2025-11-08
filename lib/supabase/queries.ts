@@ -1,5 +1,5 @@
 import { supabase } from './client'
-import type { Project, Client, Expense, Goal, UserProfile } from './types'
+import type { Project, Client, Expense, Goal, UserProfile, InspirationFolder, InspirationItem } from './types'
 
 // Projects
 export async function getProjects(userId: string) {
@@ -221,5 +221,125 @@ export async function updateUserProfile(userId: string, name: string) {
   
   if (error) throw error
   return data as UserProfile
+}
+
+// Inspiration Folders
+export async function getInspirationFolders(userId: string) {
+  const { data, error } = await supabase
+    .from('inspiration_folders')
+    .select('*')
+    .eq('user_id', userId)
+    .order('pinned', { ascending: false })
+    .order('updated_at', { ascending: false })
+  
+  if (error) throw error
+  return data as InspirationFolder[]
+}
+
+export async function createInspirationFolder(folder: Omit<InspirationFolder, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'item_count'>) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  
+  const { data, error } = await supabase
+    .from('inspiration_folders')
+    .insert({ ...folder, user_id: user.id, item_count: 0 })
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data as InspirationFolder
+}
+
+export async function updateInspirationFolder(id: string, folder: Partial<InspirationFolder>) {
+  const { data, error } = await supabase
+    .from('inspiration_folders')
+    .update(folder)
+    .eq('id', id)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data as InspirationFolder
+}
+
+export async function deleteInspirationFolder(id: string) {
+  const { error } = await supabase
+    .from('inspiration_folders')
+    .delete()
+    .eq('id', id)
+  
+  if (error) throw error
+}
+
+// Inspiration Items
+export async function getInspirationItems(folderId: string) {
+  const { data, error } = await supabase
+    .from('inspiration_items')
+    .select('*')
+    .eq('folder_id', folderId)
+    .order('created_at', { ascending: false })
+  
+  if (error) throw error
+  return data as InspirationItem[]
+}
+
+export async function createInspirationItem(item: Omit<InspirationItem, 'id' | 'created_at' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  
+  const { data, error } = await supabase
+    .from('inspiration_items')
+    .insert({ ...item, user_id: user.id })
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data as InspirationItem
+}
+
+export async function updateInspirationItem(id: string, item: Partial<InspirationItem>) {
+  const { data, error } = await supabase
+    .from('inspiration_items')
+    .update(item)
+    .eq('id', id)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data as InspirationItem
+}
+
+export async function deleteInspirationItem(id: string) {
+  const { error } = await supabase
+    .from('inspiration_items')
+    .delete()
+    .eq('id', id)
+  
+  if (error) throw error
+}
+
+// Update folder thumbnail from items
+export async function updateFolderThumbnailFromItems(folderId: string) {
+  // Get all items in the folder
+  const items = await getInspirationItems(folderId)
+  
+  // Find the first item with an image (image, screenshot, or link with image_url)
+  const imageItem = items.find(item => {
+    if (item.type === 'image' || item.type === 'screenshot') {
+      return item.image_url
+    }
+    if (item.type === 'link') {
+      return item.image_url
+    }
+    return false
+  })
+
+  // Update folder thumbnail
+  if (imageItem && imageItem.image_url) {
+    await updateInspirationFolder(folderId, { thumbnail_url: imageItem.image_url })
+  } else {
+    // If no image items, clear thumbnail
+    await updateInspirationFolder(folderId, { thumbnail_url: undefined })
+  }
 }
 

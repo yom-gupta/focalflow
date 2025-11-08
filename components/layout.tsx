@@ -10,7 +10,8 @@ import {
   Target,
   Menu,
   X,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Sparkles
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { useState, useEffect } from 'react'
@@ -42,6 +43,11 @@ const navigationItems = [
     title: 'Goals',
     url: '/goals',
     icon: Target,
+  },
+  {
+    title: 'Inspiration',
+    url: '/inspiration',
+    icon: Sparkles,
   },
 ]
 

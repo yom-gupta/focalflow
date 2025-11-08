@@ -82,14 +82,15 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
   return (
     <>
       <div className={`group relative overflow-hidden rounded-lg ${isDark ? 'bg-[#2e2e2e] border-white/[0.09]' : 'bg-white border-gray-200'} border hover:border-accent transition-all duration-200`}>
-        <div className="relative p-5 ">
-          <div className="cursor-pointer "  onClick={(e) => {
-          e.stopPropagation()
-          setShowProgressModal(true)
-        }}>
-
-         
-        <div className="flex items-start justify-between mb-4 ">
+        <div className="relative p-5">
+          <div 
+            className="cursor-pointer" 
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowProgressModal(true)
+            }}
+          >
+            <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <h3 className={`text-lg font-semibold ${isDark ? 'text-[#ededed]' : 'text-[#37352f]'}`}>{project.title}</h3>
@@ -127,6 +128,29 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
             <span className={isDark ? 'text-[#a5a5a5]' : 'text-[#787774]'}>Quantity</span>
             <span className={isDark ? 'text-[#ededed]' : 'text-[#37352f]'}>{project.quantity}</span>
           </div>
+          {project.link && (
+            <div className="flex items-center justify-between text-sm">
+              <span className={isDark ? 'text-[#a5a5a5]' : 'text-[#787774]'}>Project Link</span>
+              <a
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-1 ${isDark ? 'text-[#4fc3f7] hover:text-[#81c9e3]' : 'text-[#6366f1] hover:text-[#818cf8]'} transition-colors`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span className="text-xs truncate max-w-[120px]">
+                  {(() => {
+                    try {
+                      return new URL(project.link!).hostname
+                    } catch {
+                      return project.link.length > 20 ? project.link.substring(0, 20) + '...' : project.link
+                    }
+                  })()}
+                </span>
+                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+              </a>
+            </div>
+          )}
           </div>
           {project.start_date && (
             <div className={`flex items-center gap-2 text-sm ${isDark ? 'text-[#a5a5a5]' : 'text-[#787774]'}`}>
@@ -155,7 +179,8 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
               <span className={isDark ? 'text-[#ededed]' : 'text-[#37352f]'}>{new Date(project.deadline).toLocaleDateString()}</span>
             </div>
           )}
-        </div>
+            </div>
+          </div>
 
         {project.notes && (
           <p className={`text-sm mb-4 line-clamp-2 ${isDark ? 'text-[#a5a5a5]' : 'text-[#787774]'}`}>{project.notes}</p>
@@ -202,8 +227,7 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
           </Button>
         </div>
       </div>
-    </div>
-    {showProgressModal && (
+      {showProgressModal && (
       <ProgressModal project={project} onClose={() => setShowProgressModal(false)} />
     )}
     </>

@@ -76,3 +76,28 @@ export interface UserProfile {
   updated_at: string;
 }
 
+export interface InspirationFolder {
+  id: string;
+  name: string;
+  thumbnail_url?: string;
+  item_count: number;
+  pinned: boolean;
+  attached_project_id?: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InspirationItem {
+  id: string;
+  folder_id: string;
+  type: 'image' | 'link' | 'text' | 'screenshot';
+  title?: string;
+  url?: string;
+  image_url?: string;
+  note?: string;
+  tags?: string[];
+  user_id: string;
+  created_at: string;
+}
+
