@@ -121,3 +121,14 @@ body {
 .text-accent { color: var(--accent); }
 .bg-accent { background-color: var(--accent); }
 .hover\:bg-hover:hover { background-color: var(--hover); }
+
+/* Custom cursor for project cards */
+.project-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+  cursor: pointer;
+  transform: translateY(-4px);
+}

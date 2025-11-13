@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, CheckCircle, Settings, PlayCircle, Clock, XCircle, HelpCircle } from 'lucide-react'
 import Layout from '@/components/layout'
 import ProjectCard from '@/components/projects/ProjectCard'
 import ProjectForm from '@/components/projects/ProjectForm'
@@ -28,6 +28,7 @@ export default function Projects() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [timeFilter, setTimeFilter] = useState('all')
   const [userId, setUserId] = useState<string | null>(null)
+  const [showLegend, setShowLegend] = useState(false)
 
   useEffect(() => {
     getUser().then((user) => {
@@ -38,6 +39,19 @@ export default function Projects() {
       }
     })
   }, [router])
+
+  // Close legend when clicking outside
+  useEffect(() => {
+    if (!showLegend) return
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.legend-container')) {
+        setShowLegend(false)
+      }
+    }
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [showLegend])
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects', userId],
@@ -150,14 +164,72 @@ export default function Projects() {
               <h1 className="text-3xl font-semibold text-[#ededed] mb-1 tracking-tight">Projects</h1>
               <p className="text-[#a5a5a5] font-normal text-sm">Manage your video editing projects</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-end">
+              <div className="relative legend-container">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowLegend(!showLegend)
+                  }}
+                  className="text-[#a5a5a5] hover:text-[#ededed] hover:bg-[#2e2e2e]"
+                  title="Status Legend"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                </Button>
+                {showLegend && (
+                  <div 
+                    className="absolute right-0 top-full mt-2 bg-[#2e2e2e] border border-white/[0.09] rounded-lg p-4 shadow-xl z-10 min-w-[280px]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <h3 className="text-sm font-semibold text-[#ededed] mb-3">Status Legend</h3>
+                    <div className="space-y-2.5 text-xs">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4" style={{ color: '#3B82F6' }} />
+                        <span className="text-[#a5a5a5]">Complete — Project finished</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Settings className="w-4 h-4" style={{ color: '#10B981' }} />
+                        <span className="text-[#a5a5a5]">In progress — Currently working</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <PlayCircle className="w-4 h-4" style={{ color: '#64748B' }} />
+                        <span className="text-[#a5a5a5]">Not started — Project not begun</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" style={{ color: '#F97316' }} />
+                        <span className="text-[#a5a5a5]">Delayed — Behind schedule</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <XCircle className="w-4 h-4" style={{ color: '#EF4444' }} />
+                        <span className="text-[#a5a5a5]">Cancelled — Project cancelled</span>
+                      </div>
+                      <div className="border-t border-white/[0.09] pt-2.5 mt-2.5">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base font-semibold" style={{ color: '#10B981' }}>₹</span>
+                          <span className="text-[#a5a5a5]">Paid — Invoice paid</span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base font-semibold" style={{ color: '#9CA3AF' }}>₹</span>
+                          <span className="text-[#a5a5a5]">Invoice sent — Awaiting payment</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-base font-semibold" style={{ color: '#6B7280' }}>₹</span>
+                          <span className="text-[#a5a5a5]">No invoice — Not invoiced yet</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <TimeFilter activeFilter={timeFilter} onChange={setTimeFilter} />
               <Button
                 onClick={() => {
                   setEditingProject(null)
                   setShowForm(true)
                 }}
-                className="bg-[#2e2e2e] hover:bg-[#373737] text-[#ededed] border border-white/[0.09] font-normal"
+                className="bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] hover:from-[#8B5CF6] hover:to-[#6366F1] text-white border-0 font-normal"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 New Project

@@ -6,6 +6,9 @@ import { Toaster } from 'sonner'
 export const metadata: Metadata = {
   title: 'FocalFlow - Freelance Management',
   description: 'Manage your video editing business like a pro',
+  icons: {
+    icon: '/icon.svg',
+  },
 }
 
 export default function RootLayout({
